@@ -6,7 +6,6 @@ import "./homepage.styles.scss";
 
 const HomePage = () => (
   <div className="homepage">
-    <p>Just Testing the Push AGAIN</p>
     <Directory />
   </div>
 );
