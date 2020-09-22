@@ -1,4 +1,5 @@
 .collection-item {
+  box-sizing: border-box;
   width: 22%;
   display: flex;
   flex-direction: column;
@@ -27,6 +28,7 @@
 
     .price {
       width: 10%;
+      text-align: right;
     }
   }
 }
