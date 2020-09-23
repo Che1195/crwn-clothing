@@ -20,6 +20,12 @@
 
     .option {
       padding: 10px 15px;
+      border-bottom: 1px solid white;
+      transition: border-bottom .2s;
+
+      &:hover {
+        border-bottom: 1px solid black;
+      }
     }
   }
 }
