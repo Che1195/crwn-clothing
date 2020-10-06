@@ -91,3 +91,33 @@ const mapStateToProps = (state) => ({
 })
 
 export default connect(mapStateToProps)(Header)
+
+/*********************************************************
+* 111. User Redirect and User Action Type
+**********************************************************/
+
+// User Redirect: When a user successfully logs in, they get redirected to the home page
+
+import { Route, Switch, Redirect } from "react-router-dom";
+
+<Route
+exact
+path="/signin"
+render={() =>
+  this.props.currentUser ? (
+    <Redirect to="/" />
+  ) : (
+    <SignInAndSignUpPage />
+  )
+}
+/>
+
+// User Action Type: DRY for action types
+
+export const userActionTypes = {
+  SET_CURRENT_USER: "SET_CURRENT_USER",
+};
+
+/*********************************************************
+* 111. User Redirect and User Action Type
+**********************************************************/
