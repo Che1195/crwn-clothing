@@ -1,7 +1,5 @@
 import React from "react";
-import MenuItem from "../../components/menu-item/menu-item.component";
 import Directory from "../../components/directory/directory.component";
-import NavBar from "../../components/header/header.component";
 
 import "./homepage.styles.scss";
 
