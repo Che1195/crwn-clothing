@@ -278,7 +278,181 @@ export default CustomButton;
 * 116. Cart Item Reducer
 **********************************************************/
 
-// add a new property to the Cart reducer
+// add a items property to the Cart reducer
+// add a case for the "ADD_ITEM" type in the Cart reducer module
+
+import CartActionTypes from "./cart.types";
+
+const INITIAL_STATE = {
+  hidden: true,
+  cartItems: [],
+};
+
+const CartReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case CartActionTypes.TOGGLE_CART_HIDDEN:
+      return {
+        ...state,
+        hidden: !state.hidden,
+      };
+    case CartActionTypes.ADD_ITEM:
+      return {
+        ...state,
+        cartItems: [...state.cartItems, action.payload],
+      };
+    default:
+      return state;
+  }
+};
+
+export default CartReducer;
+
+
+// create the action for adding an item to the cart
+
+// types.js
+const CartActionTypes = {
+  TOGGLE_CART_HIDDEN: "TOGGLE_CART_HIDDEN",
+  ADD_ITEM: "ADD_ITEM",
+};
+
+export default CartActionTypes;
+
+// actions.js
+import CartActionTypes from "./cart.types";
+
+export const toggleCartHidden = () => ({
+  type: CartActionTypes.TOGGLE_CART_HIDDEN,
+});
+
+export const addItem = (item) => ({
+  type: CartActionTypes.ADD_ITEM,
+  payload: item,
+});
+
+// change the prop arguments for CollectionPreview so that we will have 
+// access to the item to be able to add it to the state
+
+import React from "react";
+import "./collection-preview.styles.scss";
+import CollectionItem from "../collection-item/collection-item.component";
+
+export const CollectionPreview = ({ title, items }) => (
+  <div className="collection-preview">
+    <h1 className="title">{title.toUpperCase()}</h1>
+    <div className="preview">
+      {items
+        .filter((item, idx) => idx < 4)
+        .map((item) => (
+          <CollectionItem key={item.id} item={item} />
+        ))}
+    </div>
+  </div>
+);
+
+// modify the collection item component so that clicking on the add 
+// to cart button adds that item to the cart items state property
+
+import React from "react";
+import { connect } from "react-redux";
+
+import { addItem } from "../../redux/cart/cart.actions";
+import CustomButton from "../custom-button/custom-button.component";
+
+import "./collection-item.styles.scss";
+
+const CollectionItem = ({ item, addItem }) => {
+  const { name, price, imageUrl } = item;
+
+  return (
+    <div className="collection-item">
+      <div
+        className="image"
+        style={{
+          backgroundImage: `url(${imageUrl})`,
+        }}
+      />
+      <div className="collection-footer">
+        <span className="name">{name}</span>
+        <span className="price">{`$${price}`}</span>
+      </div>
+      <CustomButton onClick={() => addItem(item)} inverted>
+        {" "}
+        Add To Cart{" "}
+      </CustomButton>
+    </div>
+  );
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  addItem: (item) => dispatch(addItem(item)),
+});
+
+export default connect(null, mapDispatchToProps)(CollectionItem);
+
+/*********************************************************
+* 117. Adding Multiple Items To Cart
+**********************************************************/
+
+// cart.utils.js - for utility functions related to the reducer code of the state
+
+export const addItemToCart = (cartItems, cartItemToAdd) => {
+  // look for the first item already in the cart that matches the item to add
+  const cartItemMatched = cartItems.find(
+    (cartItem) => cartItem.id === cartItemToAdd.id
+  );
+
+  // if the item matched then for every matching cart item, add 1 to that cart items
+  // quantity value, else return a
+  if (cartItemMatched) {
+    return cartItems.map((cartItem) =>
+      cartItem.id === cartItemToAdd.id
+        ? { ...cartItem, quantity: cartItem.quantity + 1 }
+        : cartItem
+    );
+  }
+
+  // if there was no matching cart item we will return the list of cartItems
+  // with the item to add attached to the end and given a quanitity value
+  return [...cartItems, { ...cartItemToAdd, quantity: 1 }];
+};
+
+// use the function from cart.utils.js in the reducer
+
+import CartActionTypes from "./cart.types"; 
+import { addItemToCart } from "./cart.utils";
+
+const INITIAL_STATE = {
+  hidden: true,
+  cartItems: [], // must initialize the cartItems as an empty array
+};
+
+const CartReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case CartActionTypes.TOGGLE_CART_HIDDEN:
+      return {
+        ...state,
+        hidden: !state.hidden,
+      };
+    case CartActionTypes.ADD_ITEM:
+      return {
+        ...state,
+        cartItems: addItemToCart(state.cartItems, action.payload), // this value must be an array
+      };
+    default:
+      return state;
+  }
+};
+
+export default CartReducer;
+
+
+
+
+
+
+
+
 
 
 
