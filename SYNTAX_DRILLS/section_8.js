@@ -446,7 +446,53 @@ const CartReducer = (state = INITIAL_STATE, action) => {
 
 export default CartReducer;
 
+/*********************************************************
+* 119. Cart Item Component
+**********************************************************/
 
+// build the CartItem component
+
+import React from "react";
+import "./cart-item.styles.scss";
+
+const CartItem = ({ item: { imageUrl, price, name, quantity } }) => (
+  <div className="cart-item">
+    <img src={imageUrl} alt="item" />
+    <div className="item-details">
+      <span className="name">{name}</span>
+      <span className="price">{quantity} x ${price}</span>
+    </div>
+  </div>
+);
+
+export default CartItem;
+
+// add the cartItem components to the cart Dropdown component
+
+import React from "react";
+import { connect } from "react-redux";
+
+import CartItem from "../../components/cart-item/cart-item.component";
+import CustomButton from "../../components/custom-button/custom-button.component";
+
+import "./cart-dropdown.styles.scss";
+
+const CartDropdown = ({ cartItems }) => (
+  <div className="cart-dropdown">
+    <div className="cart-items">
+      {cartItems.map((cartItem) => (
+        <CartItem key={cartItem.id} item={cartItem} />
+      ))}
+    </div>
+    <CustomButton> GO TO CHECKOUT </CustomButton>
+  </div>
+);
+
+const mapStateToProps = ({ cart: { cartItems } }) => ({
+  cartItems,
+});
+
+export default connect(mapStateToProps)(CartDropdown);
 
 
 
