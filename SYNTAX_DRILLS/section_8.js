@@ -248,8 +248,6 @@ export default connect(mapStateToProps)(Header);
 
 {hidden ? null : <CartDropdown />}
 
-// =====================================BOOKMARK=======================================>
-
 /*********************************************************
 * 115. Add To Cart Styling
 **********************************************************/
@@ -390,6 +388,10 @@ const mapDispatchToProps = (dispatch) => ({
 
 export default connect(null, mapDispatchToProps)(CollectionItem);
 
+// ==================================================================================>
+// ===================================BOOKMARK=======================================>
+// ==================================================================================>
+
 /*********************************************************
 * 117. Adding Multiple Items To Cart
 **********************************************************/
@@ -494,7 +496,88 @@ const mapStateToProps = ({ cart: { cartItems } }) => ({
 
 export default connect(mapStateToProps)(CartDropdown);
 
+/*********************************************************
+* 121. Selectors in Redux
+**********************************************************/
 
+// adding a itemCount indicator in the cartIcon component
+// this is the inefficient way of doing this, selectors are better
+// DONT DRILL THIS!! WASTE OF TIME!!
+
+import React from "react";
+import { connect } from "react-redux";
+
+import { ReactComponent as ShoppingIcon } from "../../assets/shopping-bag.svg";
+import { toggleCartHidden } from "../../redux/cart/cart.actions";
+
+import "./cart-icon.styles.scss";
+
+const CartIcon = ({ toggleCartHidden, itemCount }) => (
+  <div className="cart-icon" onClick={toggleCartHidden}>
+    <ShoppingIcon className="shopping-icon" />
+    <span className="item-count">{itemCount}</span>
+  </div>
+);
+
+const mapDispatchToProps = (dispatch) => ({
+  toggleCartHidden: () => dispatch(toggleCartHidden()),
+});
+
+const mapStateToProps = ({ cart: { cartItems } }) => ({
+  itemCount: cartItems.reduce((acc, cur) => acc + cur.quantity, 0),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(CartIcon);
+
+// cart.selectors.js
+
+import { createSelector } from "reselect";
+
+const selectCart = (state) => state.cart; // input selector
+
+// memoized selector
+export const selectCartItems = createSelector(
+  [selectCart],
+  (cart) => cart.cartItems
+);
+
+export const selectCartItemsCount = createSelector(
+  [selectCartItems],
+  (cartItems) => cartItems.reduce((acc, cartItem) => acc + cartItem.quantity, 0)
+);
+
+
+// updating cartItemsCount using memoization by way of selectors
+import React from "react";
+import { connect } from "react-redux";
+
+import { selectCartItemsCount } from "../../redux/cart/cart.selectors";
+
+import { ReactComponent as ShoppingIcon } from "../../assets/shopping-bag.svg";
+import { toggleCartHidden } from "../../redux/cart/cart.actions";
+
+import "./cart-icon.styles.scss";
+
+const CartIcon = ({ toggleCartHidden, itemCount }) => (
+  <div className="cart-icon" onClick={toggleCartHidden}>
+    <ShoppingIcon className="shopping-icon" />
+    <span className="item-count">{itemCount}</span>
+  </div>
+);
+
+const mapDispatchToProps = (dispatch) => ({
+  toggleCartHidden: () => dispatch(toggleCartHidden()),
+});
+
+const mapStateToProps = (state) => ({
+  itemCount: selectCartItemsCount(state),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(CartIcon);
+
+// ==================================================================================>
+// ===================================BOOKMARK=======================================>
+// ==================================================================================>
 
 
 
