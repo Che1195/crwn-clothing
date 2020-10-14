@@ -529,6 +529,10 @@ const mapStateToProps = ({ cart: { cartItems } }) => ({
 
 export default connect(mapStateToProps, mapDispatchToProps)(CartIcon);
 
+/*********************************************************
+* 123. Reselect Library
+**********************************************************/
+
 // cart.selectors.js
 
 import { createSelector } from "reselect";
@@ -579,7 +583,224 @@ export default connect(mapStateToProps, mapDispatchToProps)(CartIcon);
 // ===================================BOOKMARK=======================================>
 // ==================================================================================>
 
+/*********************************************************
+* 125. User Selectors
+**********************************************************/
 
+// create the user selectors
+
+import { createSelector } from "reselect";
+
+const selectUser = (state) => state.user;
+
+export const selectCurrentUser = createSelector(
+  [selectUser],
+  (user) => user.currentUser
+);
+
+// create a new selector for the cart hidden property
+
+export const selectCartHidden = createSelector(
+  [selectCart],
+  (cart) => cart.hidden
+);
+
+// replace the components we have the respective selectors
+// using the createStructuredSelector function
+// this gets repeated for all of the components using mapstatetoprops
+
+const mapStateToProps = createStructuredSelector({
+  currentUser: selectCurrentUser,
+  hidden: selectCartHidden,
+});
+
+/*********************************************************
+* 126. Checkout Page
+**********************************************************/
+
+// create a message that appears in the cart dropdown menu when the cart is empty
+
+const CartDropdown = ({ cartItems }) => (
+  <div className="cart-dropdown">
+    <div className="cart-items">
+      {cartItems.length ? (
+        cartItems.map((cartItem) => (
+          <CartItem key={cartItem.id} item={cartItem} />
+        ))
+      ) : (
+        <span className="empty-message">Your cart is empty</span>
+      )}
+    </div>
+    <CustomButton> Go To Checkout </CustomButton>
+  </div>
+);
+
+// center the empty cart message
+
+// create the checkout page folder and files
+
+import React from "react";
+
+import "./checkout.styles.scss";
+
+const CheckoutPage = () => (
+  <div className="checkout-page">Welcome to the checkout page.</div>
+);
+
+export default CheckoutPage;
+
+// add a <Route> component pointing to the page in the switch component in App.js
+
+<Route exact path="/checkout" component={CheckoutPage} />
+
+// wrap the connect()() function in the withRouter function giving us access to
+// the history prop which we can then use to access the checkout page onClick
+
+const CartDropdown = ({ cartItems, history }) => (
+  <div className="cart-dropdown">
+    <div className="cart-items">
+      {cartItems.length ? (
+        cartItems.map((cartItem) => (
+          <CartItem key={cartItem.id} item={cartItem} />
+        ))
+      ) : (
+        <span className="empty-message">Your cart is empty</span>
+      )}
+    </div>
+    <CustomButton onClick={() => history.push("/checkout")}>
+      {" "}
+      Go To Checkout{" "}
+    </CustomButton>
+  </div>
+);
+
+const mapStateToProps = createStructuredSelector({
+  cartItems: selectCartItems,
+});
+
+export default withRouter(connect(mapStateToProps)(CartDropdown));
+
+/*********************************************************
+* 127. Checkout Page 2
+**********************************************************/
+
+// now we have to build a rough draft of our checkout page
+
+import React from "react";
+import { connect } from "react-redux";
+import { createStructuredSelector } from "reselect";
+
+import {
+  selectCartItems,
+  selectCartTotal,
+} from "../../redux/cart/cart.selectors";
+
+import "./checkout.styles.scss";
+
+const CheckoutPage = ({ cartItems, cartTotal }) => (
+  <div className="checkout-page">
+    <div className="checkout-header">
+      <div className="header-block">
+        <span>Product</span>
+      </div>
+      <div className="header-block">
+        <span>Description</span>
+      </div>
+      <div className="header-block">
+        <span>Quantity</span>
+      </div>
+      <div className="header-block">
+        <span>Price</span>
+      </div>
+      <div className="header-block">
+        <span>Remove</span>
+      </div>
+    </div>
+    {cartItems.map((cartItem) => cartItem.name)}
+    <div className="total">
+      <span> TOTAL: ${cartTotal}</span>
+    </div>
+  </div>
+);
+
+const mapStateToProps = createStructuredSelector({
+  cartItems: selectCartItems,
+  cartTotal: selectCartTotal,
+});
+
+export default connect(mapStateToProps)(CheckoutPage);
+
+/*********************************************************
+* 128. Extensible Code
+**********************************************************/
+
+// quick lesson on the importance of keeping code simple 
+// and coding for future ease of use
+
+/*********************************************************
+* 129. Dispatch action shorthand
+**********************************************************/
+
+// make it so that the cart dropdown hides when you click on the go to checkout button
+// introducring a less verbose way of using an action dispatch
+
+const CartDropdown = ({ cartItems, history, dispatch }) => ( // dispatch is an included prop
+  <div className="cart-dropdown">
+    <div className="cart-items">
+      {cartItems.length ? (
+        cartItems.map((cartItem) => (
+          <CartItem key={cartItem.id} item={cartItem} />
+        ))
+      ) : (
+        <span className="empty-message">Your cart is empty</span>
+      )}
+    </div>
+    <CustomButton
+      onClick={() => {
+        history.push("/checkout");
+        dispatch(toggleCartHidden()); // call toggleCartHidden action when the button is clicked
+      }}
+    >
+      {" "}
+      Go To Checkout{" "}
+    </CustomButton>
+  </div>
+);
+
+const mapStateToProps = createStructuredSelector({
+  cartItems: selectCartItems,
+});
+
+export default withRouter(connect(mapStateToProps)(CartDropdown));
+
+/*********************************************************
+* 130. Checkout Item Component
+**********************************************************/
+
+// create the checkout item Component
+
+import React from "react";
+import "./checkout-item.styles.scss";
+
+const CheckoutItem = ({ cartItem: { imageUrl, name, quantity, price } }) => (
+  <div className="checkout-item">
+    <div className="image-container">
+      <img src={imageUrl} alt="item" />
+    </div>
+    <span className="name">{name}</span>
+    <span className="quantity">{quantity}</span>
+    <span className="price">{price}</span>
+    <div className="remove-button">&#10005;</div>
+  </div>
+);
+
+export default CheckoutItem;
+
+// add the component to the map method in the checkout page
+
+{cartItems.map((cartItem) => (
+  <CheckoutItem key={cartItem.id} cartItem={cartItem} />
+))}
 
 
 
