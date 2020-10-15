@@ -690,6 +690,8 @@ import React from "react";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
 
+import CheckoutItem from "../../components/checkout-item/checkout-item.component"
+
 import {
   selectCartItems,
   selectCartTotal,
@@ -716,7 +718,9 @@ const CheckoutPage = ({ cartItems, cartTotal }) => (
         <span>Remove</span>
       </div>
     </div>
-    {cartItems.map((cartItem) => cartItem.name)}
+    {cartItems.map((cartItem) => (
+      <CheckoutItem key={cartItem.id} cartItem={cartItem} />
+    ))}
     <div className="total">
       <span> TOTAL: ${cartTotal}</span>
     </div>
@@ -801,6 +805,182 @@ export default CheckoutItem;
 {cartItems.map((cartItem) => (
   <CheckoutItem key={cartItem.id} cartItem={cartItem} />
 ))}
+
+/*********************************************************
+* 131. Remove Items From Cart
+**********************************************************/
+
+// create a new cart action type for clearing an item from the cart
+
+const CartActionTypes = {
+  TOGGLE_CART_HIDDEN: "TOGGLE_CART_HIDDEN",
+  ADD_ITEM: "ADD_ITEM",
+  CLEAR_ITEM_FROM_CART: "CLEAR_ITEM_FROM_CART"
+};
+
+export default CartActionTypes;
+
+// create a new action that dispatches the clear item from cart
+
+export const clearItemFromCart = (item) => ({
+  type: cartActionTypes.CLEAR_ITEM_FROM_CART,
+  payload: item,
+});
+
+// update reducer with a new case for clearing an item from the cart
+
+case cartActionTypes.CLEAR_ITEM_FROM_CART:
+  return {
+    ...state,
+    cartItems: state.cartItems.filter(
+      (cartItem) => cartItem.id !== action.payload.id
+    ),
+  };
+
+// bind the clear item from cart functionality to our checkout-item component
+
+import React from "react";
+import { connect } from "react-redux";
+import "./checkout-item.styles.scss";
+
+import { clearItemFromCart } from "../../redux/cart/cart.actions";
+
+const CheckoutItem = ({ cartItem, clearItem }) => {
+  const { imageUrl, name, quantity, price } = cartItem;
+
+  return (
+    <div className="checkout-item">
+      <div className="image-container">
+        <img src={imageUrl} alt="item" />
+      </div>
+      <span className="name">{name}</span>
+      <span className="quantity">{quantity}</span>
+      <span className="price">{price}</span>
+      <div className="remove-button" onClick={() => clearItem(cartItem)}>
+        &#10005;
+      </div>
+    </div>
+  );
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  clearItem: (item) => dispatch(clearItemFromCart(item)),
+});
+
+export default connect(null, mapDispatchToProps)(CheckoutItem);
+
+/*********************************************************
+* 132. Remove Items at Checkout
+**********************************************************/
+
+/* building in our quantity increase and decrease feature */
+
+// add the increase and decrease quanitity arrows to our UI
+
+<span className="quantity">
+  <div className="arrow">&#10094;</div>
+  <span className="value">{quantity}</span>
+  <div className="arrow">&#10095;</div>
+</span>
+
+// create the functionality for the decrease and increase arrows
+
+// add the remove item type
+
+const CartActionTypes = {
+  TOGGLE_CART_HIDDEN: "TOGGLE_CART_HIDDEN",
+  ADD_ITEM: "ADD_ITEM",
+  REMOVE_ITEM: "REMOVE_ITEM",
+  CLEAR_ITEM_FROM_CART: "CLEAR_ITEM_FROM_CART",
+};
+
+export default CartActionTypes;
+
+// create the remove item action
+
+export const removeItem = (item) => ({
+  type: cartActionTypes.REMOVE_ITEM,
+  payload: item,
+});
+
+// modify the reducer to have a case for the remove item action
+
+case cartActionTypes.REMOVE_ITEM:
+  return {
+    ...state,
+    cartItems: removeItemFromCart(state.cartItems, action.payload),
+  };
+
+// Write a new utility function that returns a new array with the subtracted item
+
+export const removeItemFromCart = (cartItems, cartItemToRemove) => {
+  // find the cart item to remove
+  const existingCartItem = cartItems.find(
+    (cartItem) => cartItem.id === cartItemToRemove.id
+  );
+  
+  // check if the quantity of the item to be removed is equal to 1
+  // if so, return a new array that filters out that cartItem
+  if (existingCartItem.quantity === 1) {
+    return cartItems.filter((cartItem) => cartItem.id !== cartItemToRemove.id);
+  }
+
+  // return a new array that subtracts 1 from the quantity of the relavent cart item
+  return cartItems.map((cartItem) =>
+    cartItem.id === cartItemToRemove.id
+      ? { ...cartItem, quantity: cartItem.quantity - 1 }
+      : cartItem
+  );
+};
+
+// add the functionality to the checkout-item component
+
+import React from "react";
+import { connect } from "react-redux";
+import "./checkout-item.styles.scss";
+
+import {
+  clearItemFromCart,
+  addItem,
+  removeItem,
+} from "../../redux/cart/cart.actions";
+
+
+const CheckoutItem = ({ cartItem, clearItem, addItem, removeItem }) => {
+  const { imageUrl, name, quantity, price } = cartItem;
+
+  return (
+    <div className="checkout-item">
+      <div className="image-container">
+        <img src={imageUrl} alt="item" />
+      </div>
+      <span className="name">{name}</span>
+      <span className="quantity">
+        <div className="arrow" onClick={() => removeItem(cartItem)}>
+          &#10094;
+        </div>
+        <span className="value">{quantity}</span>
+        <div className="arrow" onClick={() => addItem(cartItem)}>
+          &#10095;
+        </div>
+      </span>
+      <span className="price">{price}</span>
+      <div className="remove-button" onClick={() => clearItem(cartItem)}>
+        &#10005;
+      </div>
+    </div>
+  );
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  clearItem: (item) => dispatch(clearItemFromCart(item)),
+  addItem: (item) => dispatch(addItem(item)),
+  removeItem: (item) => dispatch(removeItem(item)),
+});
+
+export default connect(null, mapDispatchToProps)(CheckoutItem);
+
+
 
 
 
