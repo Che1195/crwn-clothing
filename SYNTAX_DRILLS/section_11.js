@@ -151,4 +151,11 @@ export default connect(mapStateToProps)(CollectionPage);
   (collections) => Object.keys(collections).map((key) => collections[key])
 )
 
+/*********************************************************
+ * 149. Thinking about Data flow
+ **********************************************************/
+
+ // senior developers always think about their data flow
+ 
+
 
