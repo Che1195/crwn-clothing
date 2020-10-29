@@ -1,44 +1,69 @@
 /*********************************************************
- * 155. Deploying to Heroku
+ * 150. Introduction to Stripe
  **********************************************************/
 
-// create a Heroku account
-// install the Heroku CLI
-// create a Heroku project using this command
-// heroku create crwn-live-che --buildpack https://github.com/mars/create-react-app-buildpack.git
-// this will return a link to the hosted project
-
-// the domain needs to be given permission to use firebase sign in functionality
+// stripe does a lot of the heavy lifting for creating a payment feature
+// feels like cash register API
 
 /*********************************************************
- * 157. Linking Github to Heroku
+ * 151. Stripe Integration
  **********************************************************/
 
- // want to update your live app everytime you update your master git branch?
- // follow the steps in this link: https://devcenter.heroku.com/articles/github-integration
+ // stripe keys inserted into our application tells it the account we want to access
 
- /*********************************************************
- * 159. Optimizing Production Build
- **********************************************************/
-
- // we dont want the logger to be leaving messages in the console
-
- import { createStore, applyMiddleware } from "redux";
-import { persistStore } from "redux-persist";
-
-import logger from "redux-logger";
-
-import rootReducer from "./root-reducer";
-
-const middlewares = [];
-
-// We want to apply the logger middleware only if the NODE_ENV is in development
-if (process.env.NODE_ENV === 'development') {
-  middlewares.push(logger)
-}
-
-export const store = createStore(rootReducer, applyMiddleware(...middlewares));
-
-export const persistor = persistStore(store);
-
-export default store;
+ // make the StripeCheckoutButton
+ 
+ import React from "react";
+ import { connect } from "react-redux";
+ import { createStructuredSelector } from "reselect";
+ 
+ import CheckoutItem from "../../components/checkout-item/checkout-item.component";
+ import StripeCheckoutButton from "../../components/stripe-button/stripe-button.component"
+ 
+ import {
+   selectCartItems,
+   selectCartTotal,
+ } from "../../redux/cart/cart.selectors";
+ 
+ import "./checkout.styles.scss";
+ 
+ const CheckoutPage = ({ cartItems, total }) => (
+   <div className="checkout-page">
+     <div className="checkout-header">
+       <div className="header-block">
+         <span>Product</span>
+       </div>
+       <div className="header-block">
+         <span>Description</span>
+       </div>
+       <div className="header-block">
+         <span>Quantity</span>
+       </div>
+       <div className="header-block">
+         <span>Price</span>
+       </div>
+       <div className="header-block">
+         <span>Remove</span>
+       </div>
+     </div>
+     {cartItems.map((cartItem) => (
+       <CheckoutItem key={cartItem.id} cartItem={cartItem} />
+     ))}
+     <div className="total"> TOTAL: ${total} </div>
+     <div className="test-warning">
+       *Please use the following test credit cart for payments*
+       <br />
+       4242 4242 4242 4242 - Exp: 01/22 - CVV: 123
+     </div>
+     <StripeCheckoutButton price={total}/>
+   </div>
+ );
+ 
+ const mapStateToProps = createStructuredSelector({
+   cartItems: selectCartItems,
+   total: selectCartTotal,
+ });
+ 
+ export default connect(mapStateToProps)(CheckoutPage);
+ 
+ 
