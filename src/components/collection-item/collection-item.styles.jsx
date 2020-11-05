@@ -44,11 +44,11 @@ export const CollectionFooterContainer = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 18px;
+  margin-bottom: 15px;
 `
 
 export const NameContainer = styled.span`
   width: 90%;
-  margin-bottom: 15px;
   margin-left: 32px;
 `
 
