@@ -17,7 +17,7 @@ export const CartDropdownButton = styled(CustomButton)`
   margin-top: auto;
 `
 
-export const CartDropdownContainer = styled.div`
+export const CartDropdownStyleContainer = styled.div`
   position: absolute;
   width: 240px;
   height: 340px;

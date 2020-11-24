@@ -15,13 +15,10 @@ const config = {
 
 export const createUserProfileDocument = async (userAuth, additionalData) => {
   if (!userAuth) return;
+
   const userRef = firestore.doc(`users/${userAuth.uid}`);
-  const collectionRef = firestore.collection('users')
 
   const snapShot = await userRef.get();
-  const collectionSnapshot = await collectionRef.get();
-
-  console.log({collection: collectionSnapshot.docs.map(docs => docs.data())})
 
   if (!snapShot.exists) {
     const { displayName, email } = userAuth;
@@ -69,9 +66,17 @@ export const convertCollectionsSnapshotToMap = (collections) => {
 
   return transformedCollection.reduce((accumulator, collection) => {
     accumulator[collection.title.toLowerCase()] = collection;
-    console.log(accumulator)
     return accumulator
   }, {})
+}
+
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = auth.onAuthStateChanged(userAuth => {
+      unsubscribe();
+      resolve(userAuth)
+    }, reject)
+  })
 }
 
 // initializes firebase with the configurations that we got from our account
@@ -83,12 +88,12 @@ export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
 // gives us access to the google auth provider class from the authentication library
-const provider = new firebase.auth.GoogleAuthProvider();
+export const googleProvider = new firebase.auth.GoogleAuthProvider();
 // trigger the google sign in pop up when ever we use this google auth provider
 // for authentication and sign in.
-provider.setCustomParameters({ prompt: "select_account" });
+googleProvider.setCustomParameters({ prompt: "select_account" });
 // sign in with popup needs to know what the provider is, it could be facebook,
 // github etc...
-export const signInWithGoogle = () => auth.signInWithPopup(provider);
+export const signInWithGoogle = () => auth.signInWithPopup(googleProvider);
 
 export default firebase;
